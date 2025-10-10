@@ -1,0 +1,127 @@
+extends layout
+
+block content
+    .page-header
+        .search-section
+            .search-box
+                input(type="text" id="search-input" placeholder="Tìm kiếm" value=query.search || '')
+                .search-options
+                    select#search-field
+                        option(value="all" selected=(!query.searchField || query.searchField === 'all')) Tất cả
+                        option(value="id" selected=(query.searchField === 'id')) ID
+                        option(value="device" selected=(query.searchField === 'device')) Device
+                        option(value="action" selected=(query.searchField === 'action')) Action
+                        option(value="created_at" selected=(query.searchField === 'created_at')) Created At
+                button(type="button" id="search-btn")
+                    i.fas.fa-search
+            
+            .filter-section
+                .filter-box
+                    label(for="device-filter") Thiết bị:
+                    select#device-filter
+                        option(value="all" selected=(!query.deviceFilter || query.deviceFilter === 'all')) Tất cả thiết bị
+                        option(value="light" selected=(query.deviceFilter === 'light')) LED
+                        option(value="fan" selected=(query.deviceFilter === 'fan')) Fan
+                        option(value="airconditioner" selected=(query.deviceFilter === 'airconditioner')) Air Conditioner
+                
+                .filter-box
+                    label(for="action-filter") Hành động:
+                    select#action-filter
+                        option(value="all" selected=(!query.actionFilter || query.actionFilter === 'all')) Tất cả hành động
+                        option(value="on" selected=(query.actionFilter === 'on')) Bật (ON)
+                        option(value="off" selected=(query.actionFilter === 'off')) Tắt (OFF)
+                
+                button(type="button" id="filter-btn")
+                    i.fas.fa-filter
+                    span Lọc
+
+    .data-table-container
+        table.data-table
+            thead
+                tr
+                    th.sortable(data-sort="id")
+                        span ID
+                        i.fas.fa-sort
+                    th.sortable(data-sort="device")
+                        span Thiết bị
+                        i.fas.fa-sort
+                    th.sortable(data-sort="action")
+                        span Hành động
+                        i.fas.fa-sort
+                    th.sortable(data-sort="created_at")
+                        span Thời gian tạo
+                        i.fas.fa-sort
+
+            tbody#data-tbody
+                each item in data
+                    tr
+                        td= item.id
+                        td= item.device
+                        td
+                            .action-badge(class=item.action === 'on' ? 'action-on' : 'action-off')
+                                = item.action
+                        td= moment(item.created_at).format('YYYY/MM/DD HH:mm:ss')
+
+        // Phân trang 
+        .pagination-footer
+            .pagination-controls
+                .rows-per-page
+                    label(for="rows-per-page") Hiển thị:
+                    select#rows-per-page(name="limit")
+                        option(value="5" selected=(pagination.limit === 5)) 5
+                        option(value="7" selected=(pagination.limit === 7)) 7
+                        option(value="10" selected=(pagination.limit === 10)) 10
+                        option(value="15" selected=(pagination.limit === 15)) 15
+                        option(value="20" selected=(pagination.limit === 20)) 20
+                        option(value="30" selected=(pagination.limit === 30)) 30
+                    span dòng
+            .pagination
+                // Nút Đầu và Trước
+                if pagination.hasPrev
+                    a.page-btn(href=`?page=1&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}&deviceFilter=${query.deviceFilter || 'all'}&actionFilter=${query.actionFilter || 'all'}`)
+                        i.fas.fa-angle-double-left
+                    a.page-btn(href=`?page=${pagination.currentPage - 1}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}&deviceFilter=${query.deviceFilter || 'all'}&actionFilter=${query.actionFilter || 'all'}`)
+                        i.fas.fa-angle-left
+                else
+                    span.page-btn.disabled
+                        i.fas.fa-angle-double-left
+                    span.page-btn.disabled
+                        i.fas.fa-angle-left
+
+                // Số trang
+                - const startPage = Math.max(1, pagination.currentPage - 2)
+                - const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2)
+
+                each page in Array.from({length: endPage - startPage + 1}, (_, i) => startPage + i)
+                    if page === pagination.currentPage
+                        span.page-btn.active= page
+                    else
+                        a.page-btn(href=`?page=${page}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}&deviceFilter=${query.deviceFilter || 'all'}&actionFilter=${query.actionFilter || 'all'}`)= page
+
+                // Nút Tiếp theo và Cuối
+                if pagination.hasNext
+                    a.page-btn(href=`?page=${pagination.currentPage + 1}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}&deviceFilter=${query.deviceFilter || 'all'}&actionFilter=${query.actionFilter || 'all'}`)
+                        i.fas.fa-angle-right
+                    a.page-btn(href=`?page=${pagination.totalPages}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}&deviceFilter=${query.deviceFilter || 'all'}&actionFilter=${query.actionFilter || 'all'}`)
+                        i.fas.fa-angle-double-right
+                else
+                    span.page-btn.disabled
+                        i.fas.fa-angle-right
+                    span.page-btn.disabled
+                        i.fas.fa-angle-double-right
+
+block scripts
+    script.
+        const currentSort = {
+            sortBy: '#{sorting.sortBy}',
+            sortOrder: '#{sorting.sortOrder}'
+        };
+
+        window.currentPage = #{pagination.currentPage};
+        window.currentLimit = #{pagination.limit};
+        window.currentSearch = '#{query.search || ''}';
+        window.currentSearchField = '#{query.searchField || 'all'}';
+        window.currentDeviceFilter = '#{query.deviceFilter || 'all'}';
+        window.currentActionFilter = '#{query.actionFilter || 'all'}';
+
+    script(src="/js/data-table.js")

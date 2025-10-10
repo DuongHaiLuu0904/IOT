@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    .error-container
+        .error-content
+            .error-icon
+                i.fas.fa-exclamation-triangle
+            h1 Có lỗi xảy ra
+            p= error.message
+            .error-actions
+                a.btn.btn-primary(href="/") Về trang chủ
+                button.btn.btn-secondary(onclick="history.back()") Quay lại

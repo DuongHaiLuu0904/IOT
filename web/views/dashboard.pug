@@ -1,0 +1,97 @@
+extends layout
+
+block content
+    .dashboard-grid 
+        .sensor-cards
+            .sensor-card.temperature
+                .card-icon
+                    i.fas.fa-thermometer-half
+                .card-content
+                    h3 Nhiệt độ
+                    .value
+                        span#temperature-value= sensorData.temperature || '0'
+                        span.unit °C
+
+            .sensor-card.humidity
+                .card-icon
+                    i.fas.fa-tint
+                .card-content
+                    h3 Độ ẩm
+                    .value
+                        span#humidity-value= sensorData.humidity || '0'
+                        span.unit %
+
+            .sensor-card.light
+                .card-icon
+                    i.fas.fa-lightbulb
+                .card-content
+                    h3 Ánh sáng
+                    .value
+                        span#light-value= sensorData.light || '0'
+                        span.unit Lux
+
+        // Container Biểu đồ
+        .chart-container
+            .chart-header
+                h3 Biểu đồ dữ liệu cảm biến
+                .chart-controls
+                    //- select#chart-type
+                    //-     option(value="line") Biểu đồ đường
+                    //-     option(value="bar") Biểu đồ cột
+            .chart-wrapper
+                canvas#sensor-chart
+
+        // Điều khiển Thiết bị
+        .device-controls
+            .control-item
+                .device-info
+                    .device-icon
+                        if devices.light
+                            img#light-control-icon(src="/images/light-bulb (1).png" alt="Light control icon")
+                        else
+                            img#light-control-icon(src="/images/light-bulb (2).png" alt="Light control icon")
+                    .device-name Đèn
+                .toggle-switch
+                    input(type="checkbox" id="light-toggle" class="device-control" data-device="light" checked=devices.light)
+                    label(for="light-toggle")
+                        .switch-status
+                            span.on 
+                            span.off 
+
+            .control-item
+                .device-info
+                    .device-icon
+                        if devices.fan
+                            img#fan-control-icon(src="/images/fan.png" alt="Fan control icon" class="fan-spinning")
+                        else
+                            img#fan-control-icon(src="/images/fan.png" alt="Fan control icon")
+                    .device-name Quạt
+                .toggle-switch
+                    input(type="checkbox" id="fan-toggle" class="device-control" data-device="fan" checked=devices.fan)
+                    label(for="fan-toggle")
+                        .switch-status
+                            span.on 
+                            span.off 
+
+            .control-item
+                .device-info
+                    .device-icon
+                        if devices.ac
+                            img#ac-control-icon(src="/images/air-conditioner (3).png" alt="Air conditioner control icon")
+                        else
+                            img#ac-control-icon(src="/images/air-conditioner (2).png" alt="Air conditioner control icon")
+                    .device-name Điều hòa
+                .toggle-switch
+                    input(type="checkbox" id="ac-toggle" class="device-control" data-device="ac" checked=devices.ac)
+                    label(for="ac-toggle")
+                        .switch-status
+                            span.on 
+                            span.off 
+
+block scripts
+    script.
+        const chartData = !{JSON.stringify(chartData)};
+
+        const deviceStates = !{JSON.stringify(devices)};
+
+    script(src="/js/dashboard.js")

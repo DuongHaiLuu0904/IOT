@@ -1,0 +1,109 @@
+extends layout
+
+block content
+    .page-header
+        .search-section
+            .search-box
+                input(type="text" id="search-input" placeholder="Tìm kiếm" value=query.search || '')
+                .search-options
+                    select#search-field
+                        option(value="all" selected=(!query.searchField || query.searchField === 'all')) Tất cả
+                        option(value="id" selected=(query.searchField === 'id')) ID
+                        option(value="temperature" selected=(query.searchField === 'temperature')) Nhiệt độ
+                        option(value="humidity" selected=(query.searchField === 'humidity')) Độ ẩm
+                        option(value="light" selected=(query.searchField === 'light')) Ánh sáng
+                        option(value="created_at" selected=(query.searchField === 'created_at')) Created At
+                button(type="button" id="search-btn")
+                    i.fas.fa-search
+
+    .data-table-container
+        table.data-table
+            thead
+                tr
+                    th.sortable(data-sort="id")
+                        span ID
+                        i.fas.fa-sort
+                    th.sortable(data-sort="temperature")
+                        span Nhiệt độ (°C)
+                        i.fas.fa-sort
+                    th.sortable(data-sort="humidity")
+                        span Độ ẩm (%)
+                        i.fas.fa-sort
+                    th.sortable(data-sort="light")
+                        span Ánh sáng (Lux)
+                        i.fas.fa-sort
+                    th.sortable(data-sort="created_at")
+                        span Thời gian tạo
+                        i.fas.fa-sort
+
+            tbody#data-tbody
+                each item in data
+                    tr
+                        td= item.id
+                        td= item.temperature
+                        td= item.humidity
+                        td= item.light
+                        td= moment(item.created_at).format('YYYY/MM/DD HH:mm:ss')
+
+        
+        .pagination-footer
+            .pagination-controls
+                .rows-per-page
+                    label(for="rows-per-page") Hiển thị:
+                    select#rows-per-page(name="limit")
+                        option(value="5" selected=(pagination.limit === 5)) 5
+                        option(value="7" selected=(pagination.limit === 7)) 7
+                        option(value="10" selected=(pagination.limit === 10)) 10
+                        option(value="15" selected=(pagination.limit === 15)) 15
+                        option(value="20" selected=(pagination.limit === 20)) 20
+                        option(value="30" selected=(pagination.limit === 30)) 30
+                    span dòng/trang
+            .pagination
+                // Nút Đầu và Trước
+                if pagination.hasPrev
+                    a.page-btn(href=`?page=1&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}`)
+                        i.fas.fa-angle-double-left
+                    a.page-btn(href=`?page=${pagination.currentPage - 1}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}`)
+                        i.fas.fa-angle-left
+                else
+                    span.page-btn.disabled
+                        i.fas.fa-angle-double-left
+                    span.page-btn.disabled
+                        i.fas.fa-angle-left
+
+                // Số trang
+                - const startPage = Math.max(1, pagination.currentPage - 2)
+                - const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2)
+
+                each page in Array.from({length: endPage - startPage + 1}, (_, i) => startPage + i)
+                    if page === pagination.currentPage
+                        span.page-btn.active= page
+                    else
+                        a.page-btn(href=`?page=${page}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}`)= page
+
+                // Nút Tiếp theo và Cuối
+                if pagination.hasNext
+                    a.page-btn(href=`?page=${pagination.currentPage + 1}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}`)
+                        i.fas.fa-angle-right
+                    a.page-btn(href=`?page=${pagination.totalPages}&limit=${pagination.limit}&sortBy=${sorting.sortBy}&sortOrder=${sorting.sortOrder}&search=${query.search || ''}&searchField=${query.searchField || 'all'}`)
+                        i.fas.fa-angle-double-right
+                else
+                    span.page-btn.disabled
+                        i.fas.fa-angle-right
+                    span.page-btn.disabled
+                        i.fas.fa-angle-double-right
+
+block scripts
+    script.
+        // Thông tin sắp xếp và phân trang hiện tại
+        const currentSort = {
+            sortBy: '#{sorting.sortBy}',
+            sortOrder: '#{sorting.sortOrder}'
+        };
+
+        window.currentPage = #{pagination.currentPage};
+        window.currentLimit = #{pagination.limit};
+        window.currentSearch = '#{query.search || ''}';
+        window.currentSearchField = '#{query.searchField || 'all'}';
+
+    script(src="/js/data-table.js")

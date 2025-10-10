@@ -1,0 +1,53 @@
+extends layout
+
+block content
+    .profile-container
+        .profile-card.main-profile
+            .profile-avatar
+                i.fas.fa-user-circle
+            .profile-info
+                h2= profile.name
+                .info-item
+                    strong Mã sinh viên: 
+                    span= profile.studentId
+                .info-item
+                    strong Lớp: 
+                    span= profile.class
+                .info-item
+                    strong Số điện thoại: 
+                    span= profile.phone
+                .info-item
+                    strong Email: 
+                    span= profile.email
+
+        .profile-grid
+            .profile-card.feature-card(onclick="window.open('https://docs.google.com/document/d/1HT5gjNIKv8UAsz8rQiPBnXxSfZ5aSIkQ/edit?usp=sharing&ouid=111850318361999224584&rtpof=true&sd=true', '_blank')")
+                .card-content
+                    h3 Tài liệu
+                    p Click vào liên kết
+                .card-icon
+                    img(src="/images/document.png" alt="Document Icon")
+
+            .profile-card.feature-card(onclick="window.open('https://github.com/DuongHaiLuu0904/IOT', '_blank')")
+                .card-content
+                    h3 Github
+                    p Click vào liên kết
+                .card-icon
+                    img(src="/images/github.png" alt="GitHub Icon")
+
+            .profile-card.feature-card(onclick="window.open('https://www.figma.com/design/xBvylQ7sjFkSMSdARb9lh0/Untitled?node-id=12-71&t=2AaEUQAhOo1BXe4J-0', '_blank')")
+                .card-content
+                    h3 Figma
+                    p Click vào liên kết
+                .card-icon
+                    img(src="/images/figma.png" alt="Figma Icon")
+
+            .profile-card.feature-card(onclick="alert('Chức năng đang phát triển!')")
+                .card-content
+                    h3 Postman 
+                    p Click vào liên kết
+                .card-icon
+                    img(src="/images/postman.jpg" alt="Postman Icon")
+
+block scripts
+    script(src="/js/profile.js")

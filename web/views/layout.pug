@@ -1,0 +1,66 @@
+doctype html
+html(lang="vi")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        title #{title}
+
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+        //- Base layout styles - loaded on all pages
+        link(rel="stylesheet" href="/css/layout.css")
+        
+        //- Page-specific CSS files
+        if currentPage === 'dashboard'
+            link(rel="stylesheet" href="/css/dashboard.css")
+        else if currentPage === 'data-sensors' || currentPage === 'action-history'
+            link(rel="stylesheet" href="/css/data-tables.css")
+        else if currentPage === 'profile'
+            link(rel="stylesheet" href="/css/profile.css")
+
+    body
+        .container
+            nav.sidebar
+                .sidebar-header
+                    .logo
+                        i.fas.fa-sun
+
+                ul.nav-links
+                    li
+                        a(href="/" class=currentPage === 'dashboard' ? 'active' : '')
+                            i.fas.fa-home
+                            span Home
+
+                    li
+                        a(href="/data-sensors" class=currentPage === 'data-sensors' ? 'active' : '')
+                            i.fas.fa-database
+                            span Data sensors
+
+                    li
+                        a(href="/action-history" class=currentPage === 'action-history' ? 'active' : '')
+                            i.fas.fa-history
+                            span Action History
+
+                    li
+                        a(href="/profile" class=currentPage === 'profile' ? 'active' : '')
+                            i.fas.fa-user
+                            span Profile
+
+            main.main-content
+                header.header
+                    .header-content
+                        h1 #{title}
+                        //- .header-info
+                        //-     .datetime
+                        //-         span#current-time
+                        //-     .connection-status
+                        //-         span.status-indicator#connection-status
+                        //-         span#connection-text Đang kết nối...
+
+                .content
+                    block content
+
+        script(src="/js/main.js")
+        script(src="https://cdn.jsdelivr.net/npm/chart.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js")
+        script(src="/socket.io/socket.io.js")
+        block scripts
