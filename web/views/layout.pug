@@ -6,16 +6,17 @@ html(lang="vi")
         title #{title}
 
         link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
-        //- Base layout styles - loaded on all pages
+        
         link(rel="stylesheet" href="/css/layout.css")
         
-        //- Page-specific CSS files
         if currentPage === 'dashboard'
             link(rel="stylesheet" href="/css/dashboard.css")
         else if currentPage === 'data-sensors' || currentPage === 'action-history'
             link(rel="stylesheet" href="/css/data-tables.css")
         else if currentPage === 'profile'
             link(rel="stylesheet" href="/css/profile.css")
+        else if currentPage === 'statistics'
+            link(rel="stylesheet" href="/css/statistics.css")
 
     body
         .container
@@ -39,6 +40,11 @@ html(lang="vi")
                         a(href="/action-history" class=currentPage === 'action-history' ? 'active' : '')
                             i.fas.fa-history
                             span Action History
+
+                    li
+                        a(href="/statistics" class=currentPage === 'statistics' ? 'active' : '')
+                            i.fas.fa-chart-bar
+                            span Thống kê
 
                     li
                         a(href="/profile" class=currentPage === 'profile' ? 'active' : '')

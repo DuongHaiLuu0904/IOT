@@ -3,7 +3,6 @@ const SensorModel = require('../models/SensorModel');
 const ActionModel = require('../models/ActionModel');
 
 class MqttService {
-    // Khởi tạo dịch vụ MQTT với cấu hình topics và trạng thái thiết bị
     constructor(socketService) {
         this.client = null;
         this.socketService = socketService;
@@ -40,7 +39,6 @@ class MqttService {
                 reconnectPeriod: 1000,
             };
 
-            // Thêm username/password 
             if (process.env.MQTT_USERNAME) {
                 connectionOptions.username = process.env.MQTT_USERNAME;
             }
@@ -118,10 +116,10 @@ class MqttService {
         }
     }
 
-    // Xử lý dữ liệu cảm biến: lưu DB và phát tới clients
+    // lưu DB và phát tới clients
     async handleSensorData(data) {
         try {
-            // Xác thực dữ liệu cảm biến - kiểm tra undefined/null, không loại trừ giá trị 0
+            // kiểm tra undefined/null, không loại trừ giá trị 0
             if (data.temperature === undefined || data.temperature === null ||
                 data.humidity === undefined || data.humidity === null ||
                 data.light === undefined || data.light === null) {
@@ -195,6 +193,7 @@ class MqttService {
             };
 
             const topic = deviceMap[device.toLowerCase()];
+            
             if (!topic) {
                 throw new Error(`Unknown device: ${device}`);
             }

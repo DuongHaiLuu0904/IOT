@@ -1,0 +1,149 @@
+extends layout
+
+block content
+    .statistics-container
+        // Phần chọn khoảng thời gian
+        .time-filter-section
+            .section-header
+                h2 Khoảng thời gian thống kê
+                .header-actions
+                    .current-period-display
+                        - 
+                            var periodText = '1 tháng qua';
+                            if (timeFilter.startDate && timeFilter.endDate) {
+                                periodText = 'Từ ' + timeFilter.startDate + ' đến ' + timeFilter.endDate;
+                            }
+                        span.period-badge  #{periodText}
+                    button.btn.btn-primary#toggle-time-filter Tùy chỉnh
+            
+            .time-filter-form#time-filter-form-container(style="display: none;")
+                form#time-filter-form(method="GET" action="/statistics")
+                    // Giữ lại các giá trị threshold hiện tại
+                    input(type="hidden" name="tempMax" value=thresholds.temperatureMax)
+                    input(type="hidden" name="humidMax" value=thresholds.humidityMax)
+                    input(type="hidden" name="lightMax" value=thresholds.lightMax)
+                    
+                    .time-filter-grid
+                        .date-range
+                            .date-input
+                                label Từ ngày
+                                input(type="date" name="startDate" value=timeFilter.startDate required)
+                            .date-input
+                                label Đến ngày
+                                input(type="date" name="endDate" value=timeFilter.endDate required)
+                    
+                    .form-actions
+                        button.btn.btn-primary(type="submit") Áp dụng
+                        button.btn.btn-secondary(type="button" onclick="resetTimeFilter()") Đặt lại mặc định
+
+        // Phần cài đặt ngưỡng
+        .settings-section
+            .section-header
+                h2 Cài đặt ngưỡng cảm biến
+                button.btn.btn-primary#toggle-settings Tùy chỉnh
+            
+            .settings-form#settings-form(style="display: none;")
+                form#threshold-form(method="GET" action="/statistics")
+                    // Giữ lại giá trị thời gian hiện tại
+                    if timeFilter.startDate
+                        input(type="hidden" name="startDate" value=timeFilter.startDate)
+                    if timeFilter.endDate
+                        input(type="hidden" name="endDate" value=timeFilter.endDate)
+                    
+                    .threshold-grid
+                        .threshold-item
+                            label Ngưỡng nhiệt độ (°C)
+                            .input-group
+                                input(type="number" name="tempMax" step="0.1" value=thresholds.temperatureMax placeholder="Ngưỡng tối đa")
+                        
+                        .threshold-item
+                            label Ngưỡng độ ẩm (%)
+                            .input-group
+                                input(type="number" name="humidMax" step="0.1" value=thresholds.humidityMax placeholder="Ngưỡng tối đa")
+                        
+                        .threshold-item
+                            label Ngưỡng ánh sáng (Lux)
+                            .input-group
+                                input(type="number" name="lightMax" step="1" value=thresholds.lightMax placeholder="Ngưỡng tối đa")
+                    
+                    .form-actions
+                        button.btn.btn-success(type="submit") Áp dụng
+                        button.btn.btn-secondary(type="button" onclick="resetThresholds()") Đặt lại mặc định
+
+            .current-thresholds
+                .threshold-display
+                    .threshold-badge
+                        span Nhiệt độ: ≤ #{thresholds.temperatureMax}°C
+                    .threshold-badge
+                        span Độ ẩm: ≤ #{thresholds.humidityMax}%
+                    .threshold-badge
+                        span Ánh sáng: ≤ #{thresholds.lightMax} Lux
+
+        // Thống kê vi phạm ngưỡng cảm biến
+        .sensor-violations-section
+            .section-header
+                h2 Thống kê vượt ngưỡng cảm biến 
+            
+            .violations-grid
+                each sensor in sensorStats
+                    .violation-card(class=`sensor-${sensor.sensor_type}`)
+                        .card-header
+                            h3= sensor.sensor_name
+                        
+                        .card-body
+                            .violation-count
+                                .count-value= sensor.violation_count
+                                .count-label Lượt vượt ngưỡng
+
+        // Thống kê thiết bị
+        .device-stats-section
+            .section-header
+                h2 Thống kê số lần bật thiết bị
+            
+            .device-table-wrapper
+                table.device-table
+                    thead
+                        tr
+                            th #
+                            th Thiết bị
+                            th Số lần bật
+                    tbody
+                        each device, index in deviceStats
+                            tr
+                                td.rank= index + 1
+                                td.device-name= device.device
+                                td.on-count
+                                    span.badge.badge-success= device.on_count
+
+block scripts
+    script(src="/js/statistics.js")
+    script.
+        // Toggle time filter form
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleTimeBtn = document.getElementById('toggle-time-filter');
+            const timeFilterForm = document.getElementById('time-filter-form-container');
+            
+            if (toggleTimeBtn && timeFilterForm) {
+                toggleTimeBtn.addEventListener('click', function() {
+                    if (timeFilterForm.style.display === 'none') {
+                        timeFilterForm.style.display = 'block';
+                        toggleTimeBtn.textContent = 'Đóng';
+                    } else {
+                        timeFilterForm.style.display = 'none';
+                        toggleTimeBtn.textContent = 'Tùy chỉnh';
+                    }
+                });
+            }
+        });
+        
+        function resetTimeFilter() {
+            window.location.href = '/statistics?tempMax=#{thresholds.temperatureMax}&humidMax=#{thresholds.humidityMax}&lightMax=#{thresholds.lightMax}';
+        }
+        
+        function resetThresholds() {
+            const form = document.getElementById('threshold-form');
+            form.elements['tempMax'].value = 30;
+            form.elements['humidMax'].value = 80;
+            form.elements['lightMax'].value = 800;
+            form.submit();
+        }

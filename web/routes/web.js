@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const SensorModel = require('../models/SensorModel');
 const ActionModel = require('../models/ActionModel');
+const StatisticsModel = require('../models/StatisticsModel');
 
 // Trang Dashboard (Home)
 router.get('/', async (req, res) => {
@@ -117,6 +118,46 @@ router.get('/profile', (req, res) => {
             email: 'LuuDH.B22CN513@stu.ptit.edu.vn'
         }
     });
+});
+
+// Trang Statistics
+router.get('/statistics', async (req, res) => {
+    try {
+        const thresholds = {
+            temperatureMax: parseFloat(req.query.tempMax) || 30,
+            humidityMax: parseFloat(req.query.humidMax) || 80,
+            lightMax: parseInt(req.query.lightMax) || 800
+        };
+
+        // Chỉ xử lý custom date range, không có period
+        const timeFilter = {
+            startDate: req.query.startDate || null,
+            endDate: req.query.endDate || null
+        };
+
+        const [
+            sensorStats,
+            deviceStats
+        ] = await Promise.all([
+            StatisticsModel.getSensorThresholdStats(thresholds, timeFilter),
+            StatisticsModel.getDeviceActivationStats(timeFilter)
+        ]);
+
+        res.render('statistics', {
+            title: 'Thống kê',
+            currentPage: 'statistics',
+            sensorStats,
+            deviceStats,
+            thresholds,
+            timeFilter
+        });
+    } catch (error) {
+        console.error('Statistics page error:', error);
+        res.status(500).render('error', {
+            title: 'Error',
+            error: { message: 'Unable to load statistics data' }
+        });
+    }
 });
 
 module.exports = router;

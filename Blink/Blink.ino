@@ -26,7 +26,7 @@ const char* password = "123456789";
 // const char* password = "09042004";
 
 // Cấu hình MQTT
-const char* mqtt_server = "10.98.170.22";
+const char* mqtt_server = "10.244.12.22";
 const int mqtt_port = 1883;
 const char* mqtt_user = "user";
 const char* mqtt_password = "123";
