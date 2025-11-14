@@ -33,7 +33,7 @@ class MqttService {
             const clientId = process.env.MQTT_CLIENT_ID || 'iot_web_client';
             
             const connectionOptions = {
-                clientId: clientId + '_' + Math.random().toString(16).substr(2, 8),
+                clientId: clientId + ' ' + Math.random().toString(16).substr(2, 8),
                 clean: true,
                 connectTimeout: 4000,
                 reconnectPeriod: 1000,
@@ -49,7 +49,7 @@ class MqttService {
             this.client = mqtt.connect(brokerUrl, connectionOptions);
 
             this.client.on('connect', () => {
-                console.log('✅ MQTT connected to broker');
+                console.log('MQTT connected to broker');
                 this.subscribeToTopics();
             });
 
@@ -58,19 +58,19 @@ class MqttService {
             });
 
             this.client.on('error', (error) => {
-                console.error('❌ MQTT connection error:', error.message);
+                console.error('MQTT connection error:', error.message);
             });
 
             this.client.on('offline', () => {
-                console.log('⚠️  MQTT client is offline');
+                console.log('MQTT client is offline');
             });
 
             this.client.on('reconnect', () => {
-                console.log('🔄 MQTT reconnecting...');
+                console.log('MQTT reconnecting...');
             });
 
         } catch (error) {
-            console.error('❌ MQTT connection failed:', error.message);
+            console.error('MQTT connection failed:', error.message);
         }
     }
 
@@ -84,9 +84,9 @@ class MqttService {
         allTopics.forEach(topic => {
             this.client.subscribe(topic, (err) => {
                 if (err) {
-                    console.error(`❌ Failed to subscribe to ${topic}:`, err.message);
+                    console.error(`Failed to subscribe to ${topic}:`, err.message);
                 } else {
-                    console.log(`✅ Subscribed to ${topic}`);
+                    console.log(`Subscribed to ${topic}`);
                 }
             });
         });
@@ -101,7 +101,6 @@ class MqttService {
                 const data = JSON.parse(messageStr);
                 await this.handleSensorData(data);
             } else if (Object.values(this.topics.deviceStatus).includes(topic)) {
-                // Trạng thái thiết bị có thể là văn bản thường ("on"/"off") hoặc JSON
                 let data;
                 try {
                     data = JSON.parse(messageStr);
@@ -123,7 +122,7 @@ class MqttService {
             if (data.temperature === undefined || data.temperature === null ||
                 data.humidity === undefined || data.humidity === null ||
                 data.light === undefined || data.light === null) {
-                console.error('❌ Invalid sensor data received:', data);
+                console.error('Invalid sensor data received:', data);
                 return;
             }
 
@@ -143,11 +142,11 @@ class MqttService {
             });
             
         } catch (error) {
-            console.error('❌ Error handling sensor data:', error.message);
+            console.error('Error handling sensor data:', error.message);
         }
     }
 
-    // Xử lý trạng thái thiết bị: cập nhật DB và phát tới clients
+    // Xử lý trạng thái thiết bị
     async handleDeviceStatus(topic, data) {
         try {
             let device = '';
@@ -179,7 +178,7 @@ class MqttService {
 
             }
         } catch (error) {
-            console.error('❌ Error handling device status:', error.message);
+            console.error(' Error handling device status:', error.message);
         }
     }
 
@@ -198,14 +197,11 @@ class MqttService {
                 throw new Error(`Unknown device: ${device}`);
             }
 
-            // ESP32 mong đợi tin nhắn văn bản thường "on" hoặc "off"
             this.client.publish(topic, action);
 
-            console.log(`📤 Control command sent - Device: ${device}, Action: ${action}, Topic: ${topic}`);
-            
             return true;
         } catch (error) {
-            console.error('❌ Error controlling device:', error.message);
+            console.error('Error controlling device:', error.message);
             return false;
         }
     }
@@ -219,7 +215,7 @@ class MqttService {
     async disconnect() {
         if (this.client) {
             await this.client.endAsync();
-            console.log('✅ MQTT disconnected');
+            console.log('MQTT disconnected');
         }
     }
 }

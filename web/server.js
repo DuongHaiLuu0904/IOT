@@ -54,12 +54,12 @@ async function initializeServices() {
         app.locals.socketService = socketService;
 
     } catch (error) {
-        console.error('❌ Service initialization failed:', error.message);
+        console.error('Service initialization failed:', error.message);
     }
 }
 
 server.listen(process.env.PORT, async () => {
-    console.log(`🚀 IoT Web Server started on port ${process.env.PORT}`);
+    console.log(`IoT Web Server started on port ${process.env.PORT}`);
 
     await initializeServices();
 });

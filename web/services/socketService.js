@@ -9,12 +9,10 @@ class SocketService {
         this.setupEventHandlers();
     }
 
-    // Thiết lập MQTT service (được gọi sau khi MQTT service khởi tạo)
     setMqttService(mqttService) {
         this.mqttService = mqttService;
     }
 
-    // Thiết lập các event handler cho socket connections
     setupEventHandlers() {
         this.io.on('connection', (socket) => {
             this.clients.set(socket.id, {
@@ -29,19 +27,14 @@ class SocketService {
 
             // Xử lý yêu cầu điều khiển thiết bị
             socket.on('device-control', async (data) => {
-                console.log(`🎮 Device control received: ${data.device} -> ${data.action}`);
-                
                 try {
-                    // Gửi lệnh điều khiển qua MQTT nếu service có sẵn
                     if (this.mqttService) {
                         const success = await this.mqttService.controlDevice(data.device, data.action);
                         
                         if (success) {
-                            console.log(`📤 Command sent to device: ${data.device} -> ${data.action}`);
-                            // Sẽ chờ feedback từ hardware thông qua MQTT
+                            console.log(`Command sent to device: ${data.device} -> ${data.action}`);
                         } else {
-                            console.error(`❌ Failed to send command to device: ${data.device}`);
-                            // Chỉ emit lỗi khi không gửi được lệnh
+                            console.error(` Failed to send command to device: ${data.device}`);
                             socket.emit('device-control-error', {
                                 device: data.device,
                                 action: data.action,
@@ -49,8 +42,9 @@ class SocketService {
                                 timestamp: new Date().toISOString()
                             });
                         }
+
                     } else {
-                        console.warn('❌ MQTT service not available for device control');
+                        console.warn('MQTT service not available for device control');
                         socket.emit('device-control-error', {
                             device: data.device,
                             action: data.action,
@@ -59,7 +53,7 @@ class SocketService {
                         });
                     }
                 } catch (error) {
-                    console.error('❌ Error handling device control:', error.message);
+                    console.error('Error handling device control:', error.message);
                     socket.emit('device-control-error', {
                         device: data.device,
                         action: data.action,
@@ -104,7 +98,7 @@ class SocketService {
             socket.emit('device-states', deviceStates);
 
         } catch (error) {
-            console.error('❌ Error sending initial data:', error.message);
+            console.error('Error sending initial data:', error.message);
         }
     }
 
@@ -118,7 +112,7 @@ class SocketService {
         this.io.emit('device-status', data);
         // Giữ log trạng thái thiết bị vì chúng ít thường xuyên hơn và quan trọng hơn
         if (this.clients.size > 0) {
-            console.log(`🎛️  Device ${data.device} ${data.status} - broadcasted to ${this.clients.size} client(s)`);
+            console.log(`Device ${data.device} ${data.status} - broadcasted to ${this.clients.size} client(s)`);
         }
     }
 
